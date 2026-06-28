@@ -5,7 +5,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="description" content="Ficha de triagem do Projeto Terapêutico Transformar.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--bg:#0a0f1e;--bg2:#111827;--bg3:#1a2235;--bg4:#222d42;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--text:#f0f4ff;--text2:#8b9abd;--text3:#5a6a8a;--blue:#4f8ef7;--teal:#2dd4aa;--grad:linear-gradient(135deg,#4f8ef7,#2dd4aa);--green:#2dd4aa;--yellow:#f0b429;--red:#f56565;--obs:#718096;--shadow:0 4px 24px rgba(0,0,0,.4);--r:12px;--fs:15px;--lh:1.5;--sp:1}
 /* ── TEMA CLARO ── */
@@ -744,10 +744,20 @@ tr:hover td{background:rgba(255,255,255,.015)}
 // ══ TERMOS ══
 function toggleSubmitBtn(){const cb=document.getElementById('contract-checkbox'),sig=document.getElementById('consent-signature'),btn=document.getElementById('submit-triagem-btn');if(!btn)return;const ok=(cb&&cb.checked)&&(sig&&sig.value.trim().length>2);btn.disabled=!ok;btn.style.opacity=ok?'1':'.5';btn.style.cursor=ok?'pointer':'not-allowed';}
 
-// ══ SUPABASE ══
-const SUPA_URL='https://smowmmduquzmpqpcuttw.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb3dtbWR1cXV6bXBxcGN1dHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDIxNzIsImV4cCI6MjA5MjcxODE3Mn0.W4VKnwvlkdNwc0Ib7aRDMRwTlSyqa9pK2o0qWWu_Qj8';
-const db=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+// ══ NEON DB ══
+const _api = async (body) => {
+  try {
+    const r = await fetch('/api/db', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if(!r.ok) return {data:null, error:'HTTP '+r.status};
+    return r.json();
+  } catch(e) { return {data:null, error:e.message}; }
+};
+const db = {
+  from: (table) => ({
+    insert: (data) => ({ select: () => ({ single: () => _api({action:'insert',table,data}) }), then: (fn) => _api({action:'insert',table,data}).then(fn) }),
+    select: (f) => ({ order: (col,opts) => ({ limit: (n) => ({ data: null, then: (fn) => _api({action:'select',table,orderField:col,order:opts?.ascending===false?'desc':'asc',limit:n}).then(fn) }), data:null, then:(fn)=>_api({action:'select',table,orderField:col,order:opts?.ascending===false?'desc':'asc'}).then(fn) }), single:()=>_api({action:'select',table}), then:(fn)=>_api({action:'select',table}).then(fn) }),
+  }),
+};
 
 let currentTipo='adulto';
 
