@@ -466,6 +466,22 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
 <!-- TRIAGEM -->
 <!-- TRIAGEM -->
+
+  <div class="screen" id="screen-escolha-terapeuta">
+    <div class="triagem-header">
+      <button class="back-btn" onclick="voltarDaEscolha()">←</button>
+      <h2>Escolha seu Terapeuta</h2>
+      <span class="tipo-pill" id="et-tipo-pill">Individual</span>
+    </div>
+    <div class="et-header">
+      <p>A seleção de um terapeuta é obrigatória para continuar.</p>
+    </div>
+    <div style="padding:0 20px 8px;font-size:.7rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Terapeutas disponíveis</div>
+    <div class="et-grid" id="et-grid">
+      <div style="text-align:center;padding:30px;color:var(--text3);font-size:.82rem">⏳ Carregando terapeutas...</div>
+    </div>
+  </div>
+
 <div id="screen-triagem" class="screen" style="background:var(--bg)">
   <div class="triagem-header">
     <button class="back-btn" onclick="voltarDaTriagem()">←</button>
@@ -825,7 +841,11 @@ function voltarDaEscolha(){
 }
 
 function confirmarEscolhaTerapeuta(id,nome){
-  selectedTherapistId=id||null;
+  if(!id){
+    alert('Por favor, selecione um terapeuta para continuar.');
+    return;
+  }
+  selectedTherapistId=id;
   selectedTherapistNome=nome||'';
   _irParaTriagem();
 }
