@@ -819,7 +819,14 @@ function goToTriagem(tipo){
 function selecionarTipoAdulto(tipo){currentTipo=tipo==='casal'?'casal':'adulto';document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-apresentacao').classList.add('active');document.getElementById('apres-tipo-pill').textContent=tipo==='casal'?'Casal':'Individual';}
 function voltarDaApresentacao(){if(currentTipo==='infantil'){goHome();}else{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-tipo-adulto').classList.add('active');}}
 function voltarDaTriagem(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-apresentacao').classList.add('active');}
-function avancarTriagem(){document.getElementById('form-adulto').style.display=currentTipo==='adulto'?'block':'none';document.getElementById('form-infantil').style.display=currentTipo==='infantil'?'block':'none';document.getElementById('form-casal').style.display=currentTipo==='casal'?'block':'none';document.getElementById('tipo-badge').textContent=currentTipo==='adulto'?'Individual':currentTipo==='infantil'?'Infantil':'Casal';document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-triagem').classList.add('active');document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));document.getElementById('form-error-banner').style.display='none';}
+function avancarTriagem(){
+  const pill=document.getElementById('et-tipo-pill');
+  if(pill)pill.textContent=currentTipo==='casal'?'Casal':currentTipo==='infantil'?'Infantil':'Individual';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const et=document.getElementById('screen-escolha-terapeuta');
+  if(et){et.classList.add('active');carregarTerapeutas();}
+  else{_irParaTriagem();}
+}
 function toggleDotsMenu(){const m=document.getElementById('dots-menu');m.style.display=m.style.display==='block'?'none':'block';}
 function closeDotsMenu(){const m=document.getElementById('dots-menu');if(m)m.style.display='none';}
 document.addEventListener('click',e=>{if(!e.target.closest('#dots-btn')&&!e.target.closest('#dots-menu'))closeDotsMenu();});
