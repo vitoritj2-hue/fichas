@@ -8,12 +8,17 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const { action, table, id, data, fields, order, limit, offset, orderField } = req.body || req.query;
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch {} }
+  const { action, table, data, order, limit, orderField } = body || req.query;
 
   try {
     if (req.method === 'GET' || action === 'select') {
       const t = sanitizeTable(table);
-      const rows = await sql(`SELECT * FROM ${t} ORDER BY "created_at" DESC LIMIT 1000`);
+      const lim = parseInt(limit) || 1000;
+      const ord = orderField === 'nome' ? '"nome"' : '"created_at"';
+      const asc = order === 'asc' ? 'ASC' : 'DESC';
+      const rows = await sql(`SELECT * FROM ${t} ORDER BY ${ord} ${asc} LIMIT ${lim}`);
       return res.json({ data: rows, error: null });
     }
     if (action === 'insert') {
@@ -31,8 +36,8 @@ export default async function handler(req, res) {
   }
 }
 
-const ALLOWED_TABLES = ['fichas_triagem', 'fichas_casal'];
+const ALLOWED_TABLES = ['fichas_triagem', 'fichas_casal', 'terapeutas'];
 function sanitizeTable(t) {
-  if (!ALLOWED_TABLES.includes(t)) throw new Error('Tabela nao permitida');
+  if (!ALLOWED_TABLES.includes(t)) throw new Error('Tabela nao permitida: ' + t);
   return `public."${t}"`;
 }
