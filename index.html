@@ -354,9 +354,9 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .et-card{background:var(--bg3);border:2px solid var(--border2);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:10px}
 .et-card:hover{border-color:rgba(79,142,247,.5);transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .et-card.selected{border-color:var(--blue);background:rgba(79,142,247,.06)}
-.et-card-top{display:flex;align-items:center;gap:12px}
-.et-avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#1a4a3a);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff}
-.et-avatar img{width:54px;height:54px;border-radius:50%;object-fit:cover}
+.et-card-top{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding-bottom:4px}
+.et-avatar{width:100px;height:100px;border-radius:16px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#1a4a3a);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;overflow:hidden}
+.et-avatar img{width:100px;height:100px;border-radius:16px;object-fit:cover}
 .et-info h4{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:2px}
 .et-info p{font-size:.75rem;color:var(--text3)}
 .et-bio{font-size:.78rem;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -777,8 +777,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <span style="font-size:.75rem;color:rgba(255,255,255,.35)">Redirecionando em instantes...</span>
   </div>
 </div>
-<style>@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}</style>
-<script>
+<style>@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
 
 // ══ TERMOS ══
 function toggleSubmitBtn(){const cb=document.getElementById('contract-checkbox'),sig=document.getElementById('consent-signature'),btn=document.getElementById('submit-triagem-btn');if(!btn)return;const ok=(cb&&cb.checked)&&(sig&&sig.value.trim().length>2);btn.disabled=!ok;btn.style.opacity=ok?'1':'.5';btn.style.cursor=ok?'pointer':'not-allowed';}
@@ -877,13 +876,13 @@ async function carregarTerapeutas(){
       try{esp=Array.isArray(t.especialidades)?t.especialidades:(typeof t.especialidades==='string'?JSON.parse(t.especialidades):[]); }catch(e){}
       const tags=esp.slice(0,3).map(e=>'<span class="et-tag">'+e+'</span>').join('');
       const initials=t.nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-      const avatar=t.foto?'<img src="'+t.foto+'" alt="" style="width:54px;height:54px;border-radius:50%;object-fit:cover">'
+      const avatar=t.foto?'<img src="'+t.foto+'" alt="" style="width:100px;height:100px;border-radius:16px;object-fit:cover">'
         :'<span>'+initials+'</span>';
       const div=document.createElement('div');
       div.className='et-card';
       div.id='et-card-'+t.id;
       div.onclick=()=>selecionarTerapeutaCard(t.id,t.nome);
-      div.innerHTML='<div class="et-card-top"><div class="et-avatar">'+avatar+'</div>'
+      div.innerHTML='<div class="et-card-top"><div class="et-avatar" style="width:100px;height:100px">'+avatar+'</div>'
         +'<div class="et-info"><h4>'+t.nome+'</h4><p>'+(t.esp||t.formacao||'Terapeuta')+'</p></div></div>'
         +(t.bio?'<div class="et-bio">'+t.bio+'</div>':'')
         +(tags?'<div class="et-tags">'+tags+'</div>':'')
@@ -951,6 +950,8 @@ function openCfgPanel(){document.getElementById('cfg-panel').classList.add('open
 function closeCfgPanel(){document.getElementById('cfg-panel').classList.remove('open');document.getElementById('cfg-overlay').classList.remove('open');}
 
 (async()=>{loadCfg();})();
+
+loadCfg();})();
 
 </script>
 </body>
