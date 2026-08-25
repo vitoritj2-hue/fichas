@@ -848,13 +848,19 @@ function voltarDaEscolha(){
 }
 
 function confirmarEscolhaTerapeuta(id,nome){
-  if(!id){
-    alert('Por favor, selecione um terapeuta para continuar.');
-    return;
-  }
+  if(!id){alert('Por favor, selecione um terapeuta para continuar.');return;}
   selectedTherapistId=id;
   selectedTherapistNome=nome||'';
   _irParaTriagem();
+}
+
+function _irParaTriagem(){
+  document.getElementById('form-adulto').style.display=currentTipo==='adulto'?'block':'none';
+  document.getElementById('form-infantil').style.display=currentTipo==='infantil'?'block':'none';
+  document.getElementById('form-casal').style.display=currentTipo==='casal'?'block':'none';
+  document.getElementById('tipo-badge').textContent=currentTipo==='adulto'?'Individual':currentTipo==='infantil'?'Infantil':'Casal';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-triagem').classList.add('active');
 }
 
 async function carregarTerapeutas(){
