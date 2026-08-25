@@ -779,6 +779,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
 </div>
 <style>@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
 
+</style>
+<script>
 // ══ TERMOS ══
 function toggleSubmitBtn(){const cb=document.getElementById('contract-checkbox'),sig=document.getElementById('consent-signature'),btn=document.getElementById('submit-triagem-btn');if(!btn)return;const ok=(cb&&cb.checked)&&(sig&&sig.value.trim().length>2);btn.disabled=!ok;btn.style.opacity=ok?'1':'.5';btn.style.cursor=ok?'pointer':'not-allowed';}
 
@@ -950,8 +952,6 @@ function openCfgPanel(){document.getElementById('cfg-panel').classList.add('open
 function closeCfgPanel(){document.getElementById('cfg-panel').classList.remove('open');document.getElementById('cfg-overlay').classList.remove('open');}
 
 (async()=>{loadCfg();})();
-
-loadCfg();})();
 
 </script>
 </body>
