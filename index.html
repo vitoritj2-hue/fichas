@@ -947,10 +947,13 @@ async function carregarTerapeutas(){
     }catch(e){/* se falhar, segue sem ranking (carga=0 pra todos) */}
     const ativos=data.filter(t=>!t.bloqueado&&t.nome&&t.nivel&&String(t.nivel)!=='0');
     if(!ativos.length){rows.innerHTML='<div class="et-loading">Nenhum terapeuta disponível no momento.</div>';return;}
+    const SUBCAT_ORDEM=['Depressão e ansiedade','Luto e perdas','Dependência química','Trauma','Autoestima','Conflitos familiares','Dependência emocional','Propósito e identidade','Abuso'];
+    const parseArr=v=>{if(Array.isArray(v))return v;if(typeof v==='string'&&v.trim()){try{const p=JSON.parse(v);return Array.isArray(p)?p:(p&&typeof p==='object'?Object.values(p).flat():[]);}catch(e){return[];}}return[];};
     todosTerapeutas=ativos.map(t=>{
-      let esp=[];
-      try{esp=Array.isArray(t.especialidades)?t.especialidades:(typeof t.especialidades==='string'?JSON.parse(t.especialidades):[]); }catch(e){}
-      return Object.assign({},t,{_esp:esp,_carga:cargaPorId[t.id]||0});
+      let sub=parseArr(t.subcategorias);
+      if(!sub.length)sub=parseArr(t.especialidades); // compatibilidade com dados antigos ainda não resalvos
+      sub=[...new Set(sub.filter(Boolean).map(x=>String(x).trim()))];
+      return Object.assign({},t,{_esp:sub,_carga:cargaPorId[t.id]||0});
     });
     // Ranking justo: menos pacientes ativos primeiro, mais pacientes por último
     todosTerapeutas.sort((a,b)=>a._carga-b._carga||a.nome.localeCompare(b.nome,'pt-BR'));
@@ -1050,7 +1053,7 @@ function renderTerapeutas(){
     return;
   }
 
-  // Sem busca: navegação por linhas de especialidade (estilo Netflix)
+  // Sem busca: navegação por linhas de subcategoria (estilo Netflix)
   grid.style.display='none';grid.innerHTML='';
   rows.style.display='';
   rows.innerHTML='';
@@ -1070,8 +1073,14 @@ function renderTerapeutas(){
     }
   });
 
-  const especialidadesOrdenadas=Object.keys(porEspecialidade)
-    .sort((a,b)=>porEspecialidade[b].length-porEspecialidade[a].length||a.localeCompare(b,'pt-BR'));
+  const SUBCAT_ORDEM=['Depressão e ansiedade','Luto e perdas','Dependência química','Trauma','Autoestima','Conflitos familiares','Dependência emocional','Propósito e identidade','Abuso'];
+  const especialidadesOrdenadas=Object.keys(porEspecialidade).sort((a,b)=>{
+    const ia=SUBCAT_ORDEM.indexOf(a),ib=SUBCAT_ORDEM.indexOf(b);
+    if(ia!==-1&&ib!==-1)return ia-ib;
+    if(ia!==-1)return-1;
+    if(ib!==-1)return 1;
+    return porEspecialidade[b].length-porEspecialidade[a].length||a.localeCompare(b,'pt-BR');
+  });
 
   if(!especialidadesOrdenadas.length&&!semEspecialidade.length){
     empty.style.display='block';
@@ -1082,7 +1091,7 @@ function renderTerapeutas(){
     rows.appendChild(criarLinhaTerapeutas(esp,porEspecialidade[esp]));
   });
   if(semEspecialidade.length){
-    rows.appendChild(criarLinhaTerapeutas('Outras especialidades',semEspecialidade));
+    rows.appendChild(criarLinhaTerapeutas('Outras',semEspecialidade));
   }
   finalizarRenderCards();
 }
