@@ -1057,8 +1057,8 @@ function renderTerapeutas(){
   }
   empty.style.display='none';
 
-  if(termo){
-    // Busca ativa: mostra grade simples com os resultados
+  if(termo||currentTipo==='infantil'||currentTipo==='casal'){
+    // Busca ativa, ou atendimento infantil/casal: mostra grade simples, sem agrupar por tópico
     rows.style.display='none';rows.innerHTML='';
     grid.style.display='';
     grid.innerHTML='';
@@ -1067,7 +1067,7 @@ function renderTerapeutas(){
     return;
   }
 
-  // Sem busca: navegação por linhas de subcategoria (estilo Netflix)
+  // Adulto individual, sem busca: navegação por linhas de subcategoria (estilo Netflix)
   grid.style.display='none';grid.innerHTML='';
   rows.style.display='';
   rows.innerHTML='';
