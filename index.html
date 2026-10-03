@@ -945,8 +945,22 @@ async function carregarTerapeutas(){
       const cargaJson=await rCargas.json();
       if(cargaJson&&cargaJson.data){cargaJson.data.forEach(c=>{cargaPorId[c.therapistId]=parseInt(c.cnt)||0;});}
     }catch(e){/* se falhar, segue sem ranking (carga=0 pra todos) */}
-    const ativos=data.filter(t=>!t.bloqueado&&t.nome&&t.nivel&&String(t.nivel)!=='0');
-    if(!ativos.length){rows.innerHTML='<div class="et-loading">Nenhum terapeuta disponível no momento.</div>';return;}
+    const parseCategorias=v=>{
+      if(typeof v==='string'&&v.trim()){try{v=JSON.parse(v);}catch(e){v=null;}}
+      if(Array.isArray(v))return v.filter(Boolean).map(x=>String(x).trim());
+      if(v&&typeof v==='object')return Object.keys(v);
+      return[];
+    };
+    const CAT_LEGACY={'Infantil':'Atendimento infantil'};
+    const temCategoria=(t,nome)=>parseCategorias(t.categorias).map(c=>CAT_LEGACY[c]||c).includes(nome);
+    let ativos=data.filter(t=>!t.bloqueado&&t.nome&&t.nivel&&String(t.nivel)!=='0');
+    if(currentTipo==='infantil')ativos=ativos.filter(t=>temCategoria(t,'Atendimento infantil'));
+    else if(currentTipo==='casal')ativos=ativos.filter(t=>temCategoria(t,'Atendimento de casal'));
+    if(!ativos.length){
+      const msg=currentTipo==='infantil'?'Nenhum terapeuta com atendimento infantil disponível no momento.':currentTipo==='casal'?'Nenhum terapeuta com atendimento de casal disponível no momento.':'Nenhum terapeuta disponível no momento.';
+      rows.innerHTML='<div class="et-loading">'+msg+'</div>';
+      return;
+    }
     const SUBCAT_ORDEM=['Depressão e ansiedade','Luto e perdas','Dependência química','Trauma','Autoestima','Conflitos familiares','Dependência emocional','Propósito e identidade','Abuso'];
     const parseArr=v=>{if(Array.isArray(v))return v;if(typeof v==='string'&&v.trim()){try{const p=JSON.parse(v);return Array.isArray(p)?p:(p&&typeof p==='object'?Object.values(p).flat():[]);}catch(e){return[];}}return[];};
     todosTerapeutas=ativos.map(t=>{
