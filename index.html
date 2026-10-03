@@ -536,6 +536,22 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <div class="et-empty" id="et-empty" style="display:none">Nenhum terapeuta encontrado com esse termo.</div>
   </div>
 
+  <div class="screen" id="screen-escolha-horario">
+    <div class="triagem-header">
+      <button class="back-btn" onclick="voltarDaEscolhaHorario()">←</button>
+      <h2>Escolha um Horário</h2>
+      <span class="tipo-pill" id="eh-tipo-pill">Individual</span>
+    </div>
+    <div class="triagem-body">
+      <div style="margin-bottom:18px">
+        <strong id="eh-terapeuta-nome" style="font-size:.92rem"></strong>
+        <div style="font-size:.78rem;color:var(--text2);margin-top:4px">Selecione o dia e horário de sua preferência. A confirmação final fica a cargo da nossa equipe.</div>
+      </div>
+      <div id="eh-slots"></div>
+      <button class="submit-btn" id="eh-continuar-btn" onclick="confirmarHorario()" disabled style="opacity:.5;cursor:not-allowed">Continuar</button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="horario-overlay" onclick="if(event.target===this)fecharHorarioTerapeuta()">
     <div class="modal" style="max-width:420px;padding:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -863,7 +879,7 @@ const db = {
   }),
 };
 
-let currentTipo='adulto';let selectedTherapistId=null;let selectedTherapistNome='';
+let currentTipo='adulto';let selectedTherapistId=null;let selectedTherapistNome='';let selectedHorarioDia=null;let selectedHorarioSlot=null;let selectedHorarioLabel='';
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
 function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
@@ -907,7 +923,7 @@ function getSintomas(cid){return Array.from(document.querySelectorAll('#'+cid+' 
 // ══ SUBMIT ══
 
 function voltarDaEscolha(){
-  selectedTherapistId=null;selectedTherapistNome='';
+  selectedTherapistId=null;selectedTherapistNome='';selectedHorarioDia=null;selectedHorarioSlot=null;selectedHorarioLabel='';
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-apresentacao').classList.add('active');
 }
@@ -916,7 +932,42 @@ function confirmarEscolhaTerapeuta(id,nome){
   if(!id){alert('Por favor, selecione um terapeuta para continuar.');return;}
   selectedTherapistId=id;
   selectedTherapistNome=nome||'';
+  selectedHorarioDia=null;selectedHorarioSlot=null;selectedHorarioLabel='';
+  const t=todosTerapeutas.find(x=>x.id===id);
+  const disp=parseDisp(t&&t.disponibilidade);
+  const temHorarios=Object.values(disp).some(s=>Array.isArray(s)&&s.length>0);
+  if(t&&temHorarios){abrirEscolhaHorario(t,selectedTherapistNome);}
+  else{_irParaTriagem();}
+}
+function abrirEscolhaHorario(t,nomeExibido){
+  document.getElementById('eh-terapeuta-nome').textContent='Horários de '+(nomeExibido||t.nome);
+  const pill=document.getElementById('eh-tipo-pill');if(pill)pill.textContent=currentTipo==='casal'?'Casal':currentTipo==='infantil'?'Infantil':'Individual';
+  const wd=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const disp=parseDisp(t.disponibilidade);
+  const diasAtivos=Object.entries(disp).filter(([d,sl])=>Array.isArray(sl)&&sl.length>0).sort((a,b)=>+a[0]-+b[0]);
+  const wrap=document.getElementById('eh-slots');
+  wrap.innerHTML=diasAtivos.map(([d,slots])=>'<div style="margin-bottom:18px"><div style="font-size:.74rem;font-weight:700;color:var(--text);margin-bottom:8px">'+wd[+d]+'</div><div style="display:flex;flex-wrap:wrap;gap:8px">'
+    +slots.map((sl,i)=>'<button type="button" class="eh-slot-btn" onclick="selecionarHorarioSlot(this,\''+wd[+d]+'\',\''+sl.ini+'–'+sl.fim+'\')" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:.78rem;cursor:pointer;transition:all .2s">'+sl.ini+'–'+sl.fim+'</button>').join('')
+    +'</div></div>').join('')
+    +(t.disp_obs?'<div style="margin-top:4px;font-size:.74rem;color:var(--text3);font-style:italic">'+t.disp_obs+'</div>':'');
+  const cBtn=document.getElementById('eh-continuar-btn');cBtn.disabled=true;cBtn.style.opacity='.5';cBtn.style.cursor='not-allowed';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-escolha-horario').classList.add('active');
+}
+function selecionarHorarioSlot(btn,diaLabel,horaLabel){
+  document.querySelectorAll('.eh-slot-btn').forEach(b=>{b.style.background='var(--bg3)';b.style.borderColor='var(--border2)';b.style.color='var(--text2)';});
+  btn.style.background='rgba(79,142,247,.12)';btn.style.borderColor='var(--blue)';btn.style.color='var(--blue)';
+  selectedHorarioLabel=diaLabel+' '+horaLabel;
+  const cBtn=document.getElementById('eh-continuar-btn');
+  cBtn.disabled=false;cBtn.style.opacity='1';cBtn.style.cursor='pointer';
+}
+function confirmarHorario(){
+  if(!selectedHorarioLabel)return;
   _irParaTriagem();
+}
+function voltarDaEscolhaHorario(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-escolha-terapeuta').classList.add('active');
 }
 
 function _irParaTriagem(){
@@ -1115,10 +1166,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(searchInput) searchInput.addEventListener('input',renderTerapeutas);
 });
 
+function parseDisp(v){
+  if(v&&typeof v==='object'&&!Array.isArray(v))return v;
+  if(typeof v==='string'&&v.trim()){try{const p=JSON.parse(v);return(p&&typeof p==='object'&&!Array.isArray(p))?p:{};}catch(e){}}
+  return{};
+}
 function abrirHorarioTerapeuta(t,nomeExibido){
   document.getElementById('horario-nome').textContent='🗓 Horário de '+(nomeExibido||t.nome);
   const wd=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const disp=t.disponibilidade||{};
+  const disp=parseDisp(t.disponibilidade);
   const diasAtivos=Object.entries(disp).filter(([d,s])=>Array.isArray(s)&&s.length>0).sort((a,b)=>+a[0]-+b[0]);
   const conteudo=document.getElementById('horario-conteudo');
   conteudo.innerHTML=diasAtivos.length
@@ -1150,7 +1206,7 @@ async function submitTriagem(){
     if(hasErr){banner.style.display='block';document.querySelector('.field-error')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
     banner.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
     const conflitos=Array.from(document.querySelectorAll('#c-conflitos input:checked')).map(c=>c.value);
-    const data={p1_nome:gv('c-p1-nome'),p1_idade:gv('c-p1-idade'),p1_profissao:gv('c-p1-profissao'),p1_telefone:gv('c-p1-tel'),p1_religiao:gv('c-p1-religiao'),p1_ecivil:gv('c-p1-ecivil'),p2_nome:gv('c-p2-nome'),p2_idade:gv('c-p2-idade'),p2_profissao:gv('c-p2-profissao'),p2_telefone:gv('c-p2-tel'),p2_religiao:gv('c-p2-religiao'),p2_ecivil:gv('c-p2-ecivil'),tempo_juntos:gv('c-tempo'),filhos:gv('c-filhos'),motivacao:gv('c-motivacao'),conflitos:JSON.stringify(conflitos),conflito_outro:gv('c-conflito-outro'),ansiedade:gv('c-ansiedade'),depressao:gv('c-depressao'),crises_emocionais:gv('c-crises'),terapia_anterior:gv('c-terapia'),conexao_emocional:gv('c-conexao'),expectativas:gv('c-expectativas'),dedicacao_p1:gv('c-ded-p1'),dedicacao_p2:gv('c-ded-p2'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,therapistId:selectedTherapistId};
+    const data={p1_nome:gv('c-p1-nome'),p1_idade:gv('c-p1-idade'),p1_profissao:gv('c-p1-profissao'),p1_telefone:gv('c-p1-tel'),p1_religiao:gv('c-p1-religiao'),p1_ecivil:gv('c-p1-ecivil'),p2_nome:gv('c-p2-nome'),p2_idade:gv('c-p2-idade'),p2_profissao:gv('c-p2-profissao'),p2_telefone:gv('c-p2-tel'),p2_religiao:gv('c-p2-religiao'),p2_ecivil:gv('c-p2-ecivil'),tempo_juntos:gv('c-tempo'),filhos:gv('c-filhos'),motivacao:gv('c-motivacao'),conflitos:JSON.stringify(conflitos),conflito_outro:gv('c-conflito-outro'),ansiedade:gv('c-ansiedade'),depressao:gv('c-depressao'),crises_emocionais:gv('c-crises'),terapia_anterior:gv('c-terapia'),conexao_emocional:gv('c-conexao'),expectativas:gv('c-expectativas'),dedicacao_p1:gv('c-ded-p1'),dedicacao_p2:gv('c-ded-p2'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,therapistId:selectedTherapistId,horarioPreferido:selectedHorarioLabel||''};
     const{data:res,error}=await db.from('fichas_casal').insert(data).select().single();
     btn.disabled=false;btn.textContent='Enviar Ficha de Triagem';
     if(error){console.error(error);showToast('Erro ao enviar. Tente novamente.');return;}
@@ -1163,8 +1219,8 @@ async function submitTriagem(){
   banner.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
   let d;
   const aPrefEsp=gv('a-pref-especifico'),iPrefEsp=gv('i-pref-especifico');
-  if(currentTipo==='adulto'){d={tipo:'Adulto',nome:gv('a-nome'),nasc:gv('a-nasc'),cpf:gv('a-cpf'),tel:gv('a-tel'),email:gv('a-email'),sexo:gv('a-sexo'),ecivil:gv('a-ecivil'),cidade:gv('a-cidade'),queixa:gv('a-queixa'),terapia:gv('a-terapia'),med:gv('a-med'),sintomas:JSON.stringify(getSintomas('a-sintomas')),religiao:gv('a-religiao'),renda:gv('a-renda'),auxilio:gv('a-auxilio'),motivacao:gv('a-motivacao'),expectativa:gv('a-expectativa'),dias:gv('a-dias'),periodo:gv('a-periodo'),preferenciaT:gv('a-preferencia-terapeuta')+(aPrefEsp?' — Prefere: '+aPrefEsp:''),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome||gv('a-preferencia-terapeuta')};}
-  else{d={tipo:'Infantil',nome:gv('i-nome'),nasc:gv('i-nasc'),sexo:gv('i-sexo'),escola:gv('i-escola'),reside:gv('i-reside'),cidade:gv('i-cidade'),resp:gv('i-resp'),parent:gv('i-parent'),tel:gv('i-tel'),email:gv('i-email'),queixa:gv('i-queixa'),hist:gv('i-hist'),sintomas:JSON.stringify(getSintomas('i-sintomas')),religiao:gv('i-religiao'),renda:gv('i-renda'),auxilio:gv('i-auxilio'),motivacao:gv('i-motivacao'),expectativa:gv('i-expectativa'),preferenciaT:gv('i-preferencia-terapeuta')+(iPrefEsp?' — Prefere: '+iPrefEsp:''),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome||gv('i-preferencia-terapeuta')};}
+  if(currentTipo==='adulto'){d={tipo:'Adulto',nome:gv('a-nome'),nasc:gv('a-nasc'),cpf:gv('a-cpf'),tel:gv('a-tel'),email:gv('a-email'),sexo:gv('a-sexo'),ecivil:gv('a-ecivil'),cidade:gv('a-cidade'),queixa:gv('a-queixa'),terapia:gv('a-terapia'),med:gv('a-med'),sintomas:JSON.stringify(getSintomas('a-sintomas')),religiao:gv('a-religiao'),renda:gv('a-renda'),auxilio:gv('a-auxilio'),motivacao:gv('a-motivacao'),expectativa:gv('a-expectativa'),dias:gv('a-dias'),periodo:gv('a-periodo'),preferenciaT:gv('a-preferencia-terapeuta')+(aPrefEsp?' — Prefere: '+aPrefEsp:''),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome||gv('a-preferencia-terapeuta'),horarioPreferido:selectedHorarioLabel||''};}
+  else{d={tipo:'Infantil',nome:gv('i-nome'),nasc:gv('i-nasc'),sexo:gv('i-sexo'),escola:gv('i-escola'),reside:gv('i-reside'),cidade:gv('i-cidade'),resp:gv('i-resp'),parent:gv('i-parent'),tel:gv('i-tel'),email:gv('i-email'),queixa:gv('i-queixa'),hist:gv('i-hist'),sintomas:JSON.stringify(getSintomas('i-sintomas')),religiao:gv('i-religiao'),renda:gv('i-renda'),auxilio:gv('i-auxilio'),motivacao:gv('i-motivacao'),expectativa:gv('i-expectativa'),preferenciaT:gv('i-preferencia-terapeuta')+(iPrefEsp?' — Prefere: '+iPrefEsp:''),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome||gv('i-preferencia-terapeuta'),horarioPreferido:selectedHorarioLabel||''};}
   const{data:res,error}=await db.from('fichas_triagem').insert(d).select().single();
   btn.disabled=false;btn.textContent='Enviar Ficha de Triagem';
   if(error){console.error(error);showToast('Erro ao enviar. Tente novamente.');return;}
