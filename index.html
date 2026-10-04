@@ -575,7 +575,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <div id="form-adulto">
       <div class="fst">Dados Pessoais</div>
       <div class="form-grid">
-        <div class="fg"><label>Nome completo</label><input id="a-nome" type="text" placeholder="Nome do paciente"></div>
+        <div class="fg"><label>Nome</label><input id="a-nome" type="text" placeholder="Primeiro nome"></div>
+        <div class="fg"><label>Sobrenome</label><input id="a-sobrenome" type="text" placeholder="Sobrenome do paciente"></div>
         <div class="fg"><label>Data de nascimento</label><input id="a-nasc" type="date"></div>
         <div class="fg"><label>CPF</label><input id="a-cpf" type="text" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14"></div>
         <div class="fg"><label>Telefone</label><input id="a-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
@@ -620,7 +621,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <div id="form-infantil" style="display:none">
       <div class="fst">Dados da Criança</div>
       <div class="form-grid">
-        <div class="fg"><label>Nome completo</label><input id="i-nome" type="text"></div>
+        <div class="fg"><label>Nome</label><input id="i-nome" type="text"></div>
+        <div class="fg"><label>Sobrenome</label><input id="i-sobrenome" type="text"></div>
         <div class="fg"><label>Data de nascimento</label><input id="i-nasc" type="date"></div>
         <div class="fg"><label>Sexo da criança</label><select id="i-sexo"><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select></div>
         <div class="fg"><label>Escola / Série</label><input id="i-escola" type="text" placeholder="Escola X — 3º ano"></div>
@@ -668,7 +670,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div style="background:rgba(45,212,170,.06);border:1px solid rgba(45,212,170,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:.8rem;color:var(--teal)">Ficha de Triagem — Terapia de Casal</div>
       <div class="fst">Pessoa 1</div>
       <div class="form-grid">
-        <div class="fg"><label>Nome completo</label><input id="c-p1-nome" type="text"></div>
+        <div class="fg"><label>Nome</label><input id="c-p1-nome" type="text"></div>
+        <div class="fg"><label>Sobrenome</label><input id="c-p1-sobrenome" type="text"></div>
         <div class="fg"><label>Idade</label><input id="c-p1-idade" type="number" min="18" max="100" placeholder="Ex: 32"></div>
         <div class="fg"><label>Profissão</label><input id="c-p1-profissao" type="text"></div>
         <div class="fg"><label>Telefone</label><input id="c-p1-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
@@ -677,7 +680,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
       <div class="fst">Pessoa 2</div>
       <div class="form-grid">
-        <div class="fg"><label>Nome completo</label><input id="c-p2-nome" type="text"></div>
+        <div class="fg"><label>Nome</label><input id="c-p2-nome" type="text"></div>
+        <div class="fg"><label>Sobrenome</label><input id="c-p2-sobrenome" type="text"></div>
         <div class="fg"><label>Idade</label><input id="c-p2-idade" type="number" min="18" max="100" placeholder="Ex: 29"></div>
         <div class="fg"><label>Profissão</label><input id="c-p2-profissao" type="text"></div>
         <div class="fg"><label>Telefone</label><input id="c-p2-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
@@ -901,7 +905,7 @@ function maskPhone(el){let v=el.value.replace(/\D/g,'').slice(0,11);if(v.length<
 function maskCPF(el){let v=el.value.replace(/\D/g,'').slice(0,11);v=v.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1-$2');el.value=v;}
 
 // ══ VALIDAÇÃO ══
-function validateForm(tipo){document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));document.querySelectorAll('.field-error-group').forEach(el=>el.classList.remove('field-error-group'));let errors=[];const req=id=>{if(!gv(id)){markErr(id);errors.push(id);}};if(tipo==='adulto'){['a-nome','a-nasc','a-cpf','a-tel','a-email','a-sexo','a-ecivil','a-cidade','a-queixa','a-terapia','a-med','a-religiao','a-renda','a-auxilio','a-motivacao','a-expectativa'].forEach(req);if(!document.querySelectorAll('#a-sintomas input:checked').length){document.getElementById('a-sintomas').classList.add('field-error-group');errors.push('s');}}else{['i-nome','i-nasc','i-sexo','i-escola','i-reside','i-cidade','i-resp','i-parent','i-tel','i-email','i-queixa','i-hist','i-religiao','i-renda','i-auxilio','i-motivacao','i-expectativa'].forEach(req);if(!document.querySelectorAll('#i-sintomas input:checked').length){document.getElementById('i-sintomas').classList.add('field-error-group');errors.push('s');}}return errors;}
+function validateForm(tipo){document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));document.querySelectorAll('.field-error-group').forEach(el=>el.classList.remove('field-error-group'));let errors=[];const req=id=>{if(!gv(id)){markErr(id);errors.push(id);}};if(tipo==='adulto'){['a-nome','a-sobrenome','a-nasc','a-cpf','a-tel','a-email','a-sexo','a-ecivil','a-cidade','a-queixa','a-terapia','a-med','a-religiao','a-renda','a-auxilio','a-motivacao','a-expectativa'].forEach(req);if(!document.querySelectorAll('#a-sintomas input:checked').length){document.getElementById('a-sintomas').classList.add('field-error-group');errors.push('s');}}else{['i-nome','i-sobrenome','i-nasc','i-sexo','i-escola','i-reside','i-cidade','i-resp','i-parent','i-tel','i-email','i-queixa','i-hist','i-religiao','i-renda','i-auxilio','i-motivacao','i-expectativa'].forEach(req);if(!document.querySelectorAll('#i-sintomas input:checked').length){document.getElementById('i-sintomas').classList.add('field-error-group');errors.push('s');}}return errors;}
 function getSintomas(cid){return Array.from(document.querySelectorAll('#'+cid+' input:checked')).map(c=>c.value);}
 
 // ══ SUBMIT ══
@@ -1185,12 +1189,12 @@ function selecionarTerapeutaCard(id,nome){
 async function submitTriagem(){
   const banner=document.getElementById('form-error-banner'),btn=document.getElementById('submit-triagem-btn');
   if(currentTipo==='casal'){
-    const req=['c-p1-nome','c-p1-idade','c-p1-tel','c-p1-religiao','c-p1-ecivil','c-p2-nome','c-p2-idade','c-p2-tel','c-p2-religiao','c-p2-ecivil','c-tempo','c-filhos','c-motivacao','c-ansiedade','c-depressao','c-crises','c-terapia','c-conexao','c-expectativas','c-ded-p1','c-ded-p2'];
+    const req=['c-p1-nome','c-p1-sobrenome','c-p1-idade','c-p1-tel','c-p1-religiao','c-p1-ecivil','c-p2-nome','c-p2-sobrenome','c-p2-idade','c-p2-tel','c-p2-religiao','c-p2-ecivil','c-tempo','c-filhos','c-motivacao','c-ansiedade','c-depressao','c-crises','c-terapia','c-conexao','c-expectativas','c-ded-p1','c-ded-p2'];
     document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));let hasErr=false;req.forEach(id=>{if(!gv(id)){markErr(id);hasErr=true;}});
     if(hasErr){banner.style.display='block';document.querySelector('.field-error')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
     banner.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
     const conflitos=Array.from(document.querySelectorAll('#c-conflitos input:checked')).map(c=>c.value);
-    const data={p1_nome:gv('c-p1-nome'),p1_idade:gv('c-p1-idade'),p1_profissao:gv('c-p1-profissao'),p1_telefone:gv('c-p1-tel'),p1_religiao:gv('c-p1-religiao'),p1_ecivil:gv('c-p1-ecivil'),p2_nome:gv('c-p2-nome'),p2_idade:gv('c-p2-idade'),p2_profissao:gv('c-p2-profissao'),p2_telefone:gv('c-p2-tel'),p2_religiao:gv('c-p2-religiao'),p2_ecivil:gv('c-p2-ecivil'),tempo_juntos:gv('c-tempo'),filhos:gv('c-filhos'),motivacao:gv('c-motivacao'),conflitos:JSON.stringify(conflitos),conflito_outro:gv('c-conflito-outro'),ansiedade:gv('c-ansiedade'),depressao:gv('c-depressao'),crises_emocionais:gv('c-crises'),terapia_anterior:gv('c-terapia'),conexao_emocional:gv('c-conexao'),expectativas:gv('c-expectativas'),dedicacao_p1:gv('c-ded-p1'),dedicacao_p2:gv('c-ded-p2'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,therapistId:selectedTherapistId,horarioPreferido:selectedHorarioLabel||''};
+    const data={p1_nome:(gv('c-p1-nome')+' '+gv('c-p1-sobrenome')).trim(),p1_idade:gv('c-p1-idade'),p1_profissao:gv('c-p1-profissao'),p1_telefone:gv('c-p1-tel'),p1_religiao:gv('c-p1-religiao'),p1_ecivil:gv('c-p1-ecivil'),p2_nome:(gv('c-p2-nome')+' '+gv('c-p2-sobrenome')).trim(),p2_idade:gv('c-p2-idade'),p2_profissao:gv('c-p2-profissao'),p2_telefone:gv('c-p2-tel'),p2_religiao:gv('c-p2-religiao'),p2_ecivil:gv('c-p2-ecivil'),tempo_juntos:gv('c-tempo'),filhos:gv('c-filhos'),motivacao:gv('c-motivacao'),conflitos:JSON.stringify(conflitos),conflito_outro:gv('c-conflito-outro'),ansiedade:gv('c-ansiedade'),depressao:gv('c-depressao'),crises_emocionais:gv('c-crises'),terapia_anterior:gv('c-terapia'),conexao_emocional:gv('c-conexao'),expectativas:gv('c-expectativas'),dedicacao_p1:gv('c-ded-p1'),dedicacao_p2:gv('c-ded-p2'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,therapistId:selectedTherapistId,horarioPreferido:selectedHorarioLabel||''};
     const{data:res,error}=await db.from('fichas_casal').insert(data).select().single();
     btn.disabled=false;btn.textContent='Enviar Ficha de Triagem';
     if(error){console.error(error);showToast('Erro ao enviar. Tente novamente.');return;}
@@ -1202,8 +1206,8 @@ async function submitTriagem(){
   if(errors.length){banner.style.display='block';document.querySelector('.field-error,.field-error-group')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   banner.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
   let d;
-  if(currentTipo==='adulto'){d={tipo:'Adulto',nome:gv('a-nome'),nasc:gv('a-nasc'),cpf:gv('a-cpf'),tel:gv('a-tel'),email:gv('a-email'),sexo:gv('a-sexo'),ecivil:gv('a-ecivil'),cidade:gv('a-cidade'),queixa:gv('a-queixa'),terapia:gv('a-terapia'),med:gv('a-med'),sintomas:JSON.stringify(getSintomas('a-sintomas')),religiao:gv('a-religiao'),renda:gv('a-renda'),auxilio:gv('a-auxilio'),motivacao:gv('a-motivacao'),expectativa:gv('a-expectativa'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome,horarioPreferido:selectedHorarioLabel||''};}
-  else{d={tipo:'Infantil',nome:gv('i-nome'),nasc:gv('i-nasc'),sexo:gv('i-sexo'),escola:gv('i-escola'),reside:gv('i-reside'),cidade:gv('i-cidade'),resp:gv('i-resp'),parent:gv('i-parent'),tel:gv('i-tel'),email:gv('i-email'),queixa:gv('i-queixa'),hist:gv('i-hist'),sintomas:JSON.stringify(getSintomas('i-sintomas')),religiao:gv('i-religiao'),renda:gv('i-renda'),auxilio:gv('i-auxilio'),motivacao:gv('i-motivacao'),expectativa:gv('i-expectativa'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome,horarioPreferido:selectedHorarioLabel||''};}
+  if(currentTipo==='adulto'){d={tipo:'Adulto',nome:(gv('a-nome')+' '+gv('a-sobrenome')).trim(),nasc:gv('a-nasc'),cpf:gv('a-cpf'),tel:gv('a-tel'),email:gv('a-email'),sexo:gv('a-sexo'),ecivil:gv('a-ecivil'),cidade:gv('a-cidade'),queixa:gv('a-queixa'),terapia:gv('a-terapia'),med:gv('a-med'),sintomas:JSON.stringify(getSintomas('a-sintomas')),religiao:gv('a-religiao'),renda:gv('a-renda'),auxilio:gv('a-auxilio'),motivacao:gv('a-motivacao'),expectativa:gv('a-expectativa'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome,horarioPreferido:selectedHorarioLabel||''};}
+  else{d={tipo:'Infantil',nome:(gv('i-nome')+' '+gv('i-sobrenome')).trim(),nasc:gv('i-nasc'),sexo:gv('i-sexo'),escola:gv('i-escola'),reside:gv('i-reside'),cidade:gv('i-cidade'),resp:gv('i-resp'),parent:gv('i-parent'),tel:gv('i-tel'),email:gv('i-email'),queixa:gv('i-queixa'),hist:gv('i-hist'),sintomas:JSON.stringify(getSintomas('i-sintomas')),religiao:gv('i-religiao'),renda:gv('i-renda'),auxilio:gv('i-auxilio'),motivacao:gv('i-motivacao'),expectativa:gv('i-expectativa'),assinatura_consentimento:gv('consent-signature'),status:'espera',sessoes:0,devolutiva:'',obs:'',devolutivas:{},therapistId:selectedTherapistId,preferenciaT:selectedTherapistNome,horarioPreferido:selectedHorarioLabel||''};}
   const{data:res,error}=await db.from('fichas_triagem').insert(d).select().single();
   btn.disabled=false;btn.textContent='Enviar Ficha de Triagem';
   if(error){console.error(error);showToast('Erro ao enviar. Tente novamente.');return;}
