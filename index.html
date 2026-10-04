@@ -61,6 +61,7 @@ button,input,select,textarea{font-family:'Inter',sans-serif}
 .fg input,.fg select,.fg textarea{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:9px;padding:10px 12px;font-size:.86rem;outline:none;transition:border-color .2s;width:100%}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
 .fg input.field-error,.fg select.field-error,.fg textarea.field-error{border-color:var(--red)!important;background:rgba(245,101,101,.04)}
+.fg-err-msg{font-size:.68rem;color:var(--red);margin-top:4px}
 .fg select option{background:var(--bg3)}
 .fg textarea{resize:vertical;min-height:80px}
 .checkbox-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:4px}
@@ -578,9 +579,9 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="fg"><label>Nome</label><input id="a-nome" type="text" placeholder="Primeiro nome"></div>
         <div class="fg"><label>Sobrenome</label><input id="a-sobrenome" type="text" placeholder="Sobrenome do paciente"></div>
         <div class="fg"><label>Data de nascimento</label><input id="a-nasc" type="date"></div>
-        <div class="fg"><label>CPF</label><input id="a-cpf" type="text" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14"></div>
-        <div class="fg"><label>Telefone</label><input id="a-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
-        <div class="fg"><label>E-mail</label><input id="a-email" type="email" placeholder="email@exemplo.com"></div>
+        <div class="fg"><label>CPF</label><input id="a-cpf" type="text" placeholder="000.000.000-00" oninput="maskCPF(this)" onblur="checkCPF(this)" maxlength="14"></div>
+        <div class="fg"><label>Telefone</label><input id="a-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" onblur="checkCelular(this)" maxlength="15"></div>
+        <div class="fg"><label>E-mail</label><input id="a-email" type="email" placeholder="email@exemplo.com" onblur="checkEmail(this)"></div>
         <div class="fg"><label>Sexo</label><select id="a-sexo"><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select></div>
         <div class="fg"><label>Estado civil</label><select id="a-ecivil"><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option></select></div>
         <div class="fg"><label>Cidade / Estado</label><input id="a-cidade" type="text" placeholder="Ex: São Paulo — SP"></div>
@@ -633,8 +634,8 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="form-grid">
         <div class="fg"><label>Nome do responsável</label><input id="i-resp" type="text"></div>
         <div class="fg"><label>Parentesco</label><select id="i-parent"><option value="">Selecione...</option><option>Mãe</option><option>Pai</option><option>Avó/Avô</option><option>Tutor legal</option></select></div>
-        <div class="fg"><label>Telefone</label><input id="i-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
-        <div class="fg"><label>E-mail</label><input id="i-email" type="email"></div>
+        <div class="fg"><label>Telefone</label><input id="i-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" onblur="checkCelular(this)" maxlength="15"></div>
+        <div class="fg"><label>E-mail</label><input id="i-email" type="email" onblur="checkEmail(this)"></div>
       </div>
       <div class="fst">Saúde e Histórico</div>
       <div class="form-grid one">
@@ -674,7 +675,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="fg"><label>Sobrenome</label><input id="c-p1-sobrenome" type="text"></div>
         <div class="fg"><label>Idade</label><input id="c-p1-idade" type="number" min="18" max="100" placeholder="Ex: 32"></div>
         <div class="fg"><label>Profissão</label><input id="c-p1-profissao" type="text"></div>
-        <div class="fg"><label>Telefone</label><input id="c-p1-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
+        <div class="fg"><label>Telefone</label><input id="c-p1-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" onblur="checkCelular(this)" maxlength="15"></div>
         <div class="fg"><label>Religião</label><select id="c-p1-religiao"><option value="">Selecione...</option><option>Cristã (Evangélica)</option><option>Cristã (Católica)</option><option>Cristã (outra)</option><option>Espírita</option><option>Sem religião</option><option>Outra</option></select></div>
         <div class="fg"><label>Estado civil</label><select id="c-p1-ecivil"><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option></select></div>
       </div>
@@ -684,7 +685,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="fg"><label>Sobrenome</label><input id="c-p2-sobrenome" type="text"></div>
         <div class="fg"><label>Idade</label><input id="c-p2-idade" type="number" min="18" max="100" placeholder="Ex: 29"></div>
         <div class="fg"><label>Profissão</label><input id="c-p2-profissao" type="text"></div>
-        <div class="fg"><label>Telefone</label><input id="c-p2-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" maxlength="15"></div>
+        <div class="fg"><label>Telefone</label><input id="c-p2-tel" type="text" placeholder="(00) 00000-0000" oninput="maskPhone(this)" onblur="checkCelular(this)" maxlength="15"></div>
         <div class="fg"><label>Religião</label><select id="c-p2-religiao"><option value="">Selecione...</option><option>Cristã (Evangélica)</option><option>Cristã (Católica)</option><option>Cristã (outra)</option><option>Espírita</option><option>Sem religião</option><option>Outra</option></select></div>
         <div class="fg"><label>Estado civil</label><select id="c-p2-ecivil"><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União estável</option></select></div>
       </div>
@@ -903,9 +904,61 @@ document.addEventListener('click',e=>{if(!e.target.closest('#dots-btn')&&!e.targ
 // ══ MÁSCARAS ══
 function maskPhone(el){let v=el.value.replace(/\D/g,'').slice(0,11);if(v.length<=2)v=v.replace(/^(\d{0,2})/,'($1');else if(v.length<=6)v=v.replace(/^(\d{2})(\d{0,4})/,'($1) $2');else if(v.length<=10)v=v.replace(/^(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');else v=v.replace(/^(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');el.value=v;}
 function maskCPF(el){let v=el.value.replace(/\D/g,'').slice(0,11);v=v.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1-$2');el.value=v;}
+// ══ VALIDAÇÃO DE CPF / E-MAIL / CELULAR ══
+function validarCPF(cpf){
+  cpf=String(cpf||'').replace(/\D/g,'');
+  if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf))return false;
+  let soma=0;for(let i=0;i<9;i++)soma+=parseInt(cpf[i],10)*(10-i);
+  let resto=(soma*10)%11;if(resto>=10)resto=0;
+  if(resto!==parseInt(cpf[9],10))return false;
+  soma=0;for(let i=0;i<10;i++)soma+=parseInt(cpf[i],10)*(11-i);
+  resto=(soma*10)%11;if(resto>=10)resto=0;
+  return resto===parseInt(cpf[10],10);
+}
+function validarEmail(email){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email||'').trim());}
+function validarCelular(tel){
+  const d=String(tel||'').replace(/\D/g,'');
+  if(d.length!==11)return false;
+  const ddd=parseInt(d.slice(0,2),10);
+  return ddd>=11&&ddd<=99&&d[2]==='9';
+}
+function setFieldErr(id,msg){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.add('field-error');
+  let m=el.parentElement.querySelector('.fg-err-msg');
+  if(!m){m=document.createElement('div');m.className='fg-err-msg';el.parentElement.appendChild(m);}
+  m.textContent=msg;
+}
+function clearFieldErr(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.remove('field-error');
+  const m=el.parentElement.querySelector('.fg-err-msg');if(m)m.remove();
+}
+function checkCPF(el){const v=el.value.trim();if(!v)return;validarCPF(v)?clearFieldErr(el.id):setFieldErr(el.id,'CPF inválido.');}
+function checkEmail(el){const v=el.value.trim();if(!v)return;validarEmail(v)?clearFieldErr(el.id):setFieldErr(el.id,'E-mail inválido.');}
+function checkCelular(el){const v=el.value.trim();if(!v)return;validarCelular(v)?clearFieldErr(el.id):setFieldErr(el.id,'Celular inválido. Use (DDD) 9XXXX-XXXX.');}
 
 // ══ VALIDAÇÃO ══
-function validateForm(tipo){document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));document.querySelectorAll('.field-error-group').forEach(el=>el.classList.remove('field-error-group'));let errors=[];const req=id=>{if(!gv(id)){markErr(id);errors.push(id);}};if(tipo==='adulto'){['a-nome','a-sobrenome','a-nasc','a-cpf','a-tel','a-email','a-sexo','a-ecivil','a-cidade','a-queixa','a-terapia','a-med','a-religiao','a-renda','a-auxilio','a-motivacao','a-expectativa'].forEach(req);if(!document.querySelectorAll('#a-sintomas input:checked').length){document.getElementById('a-sintomas').classList.add('field-error-group');errors.push('s');}}else{['i-nome','i-sobrenome','i-nasc','i-sexo','i-escola','i-reside','i-cidade','i-resp','i-parent','i-tel','i-email','i-queixa','i-hist','i-religiao','i-renda','i-auxilio','i-motivacao','i-expectativa'].forEach(req);if(!document.querySelectorAll('#i-sintomas input:checked').length){document.getElementById('i-sintomas').classList.add('field-error-group');errors.push('s');}}return errors;}
+function validateForm(tipo){
+  document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
+  document.querySelectorAll('.field-error-group').forEach(el=>el.classList.remove('field-error-group'));
+  document.querySelectorAll('.fg-err-msg').forEach(el=>el.remove());
+  let errors=[];
+  const req=id=>{if(!gv(id)){markErr(id);errors.push(id);}};
+  const reqCPF=id=>{const v=gv(id);if(!v){markErr(id);errors.push(id);}else if(!validarCPF(v)){setFieldErr(id,'CPF inválido.');errors.push(id);}};
+  const reqEmail=id=>{const v=gv(id);if(!v){markErr(id);errors.push(id);}else if(!validarEmail(v)){setFieldErr(id,'E-mail inválido.');errors.push(id);}};
+  const reqTel=id=>{const v=gv(id);if(!v){markErr(id);errors.push(id);}else if(!validarCelular(v)){setFieldErr(id,'Celular inválido. Use (DDD) 9XXXX-XXXX.');errors.push(id);}};
+  if(tipo==='adulto'){
+    ['a-nome','a-sobrenome','a-nasc','a-sexo','a-ecivil','a-cidade','a-queixa','a-terapia','a-med','a-religiao','a-renda','a-auxilio','a-motivacao','a-expectativa'].forEach(req);
+    reqCPF('a-cpf');reqTel('a-tel');reqEmail('a-email');
+    if(!document.querySelectorAll('#a-sintomas input:checked').length){document.getElementById('a-sintomas').classList.add('field-error-group');errors.push('s');}
+  }else{
+    ['i-nome','i-sobrenome','i-nasc','i-sexo','i-escola','i-reside','i-cidade','i-resp','i-parent','i-queixa','i-hist','i-religiao','i-renda','i-auxilio','i-motivacao','i-expectativa'].forEach(req);
+    reqTel('i-tel');reqEmail('i-email');
+    if(!document.querySelectorAll('#i-sintomas input:checked').length){document.getElementById('i-sintomas').classList.add('field-error-group');errors.push('s');}
+  }
+  return errors;
+}
 function getSintomas(cid){return Array.from(document.querySelectorAll('#'+cid+' input:checked')).map(c=>c.value);}
 
 // ══ SUBMIT ══
@@ -1189,8 +1242,10 @@ function selecionarTerapeutaCard(id,nome){
 async function submitTriagem(){
   const banner=document.getElementById('form-error-banner'),btn=document.getElementById('submit-triagem-btn');
   if(currentTipo==='casal'){
-    const req=['c-p1-nome','c-p1-sobrenome','c-p1-idade','c-p1-tel','c-p1-religiao','c-p1-ecivil','c-p2-nome','c-p2-sobrenome','c-p2-idade','c-p2-tel','c-p2-religiao','c-p2-ecivil','c-tempo','c-filhos','c-motivacao','c-ansiedade','c-depressao','c-crises','c-terapia','c-conexao','c-expectativas','c-ded-p1','c-ded-p2'];
-    document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));let hasErr=false;req.forEach(id=>{if(!gv(id)){markErr(id);hasErr=true;}});
+    const req=['c-p1-nome','c-p1-sobrenome','c-p1-idade','c-p1-religiao','c-p1-ecivil','c-p2-nome','c-p2-sobrenome','c-p2-idade','c-p2-religiao','c-p2-ecivil','c-tempo','c-filhos','c-motivacao','c-ansiedade','c-depressao','c-crises','c-terapia','c-conexao','c-expectativas','c-ded-p1','c-ded-p2'];
+    document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));document.querySelectorAll('.fg-err-msg').forEach(el=>el.remove());let hasErr=false;
+    req.forEach(id=>{if(!gv(id)){markErr(id);hasErr=true;}});
+    ['c-p1-tel','c-p2-tel'].forEach(id=>{const v=gv(id);if(!v){markErr(id);hasErr=true;}else if(!validarCelular(v)){setFieldErr(id,'Celular inválido. Use (DDD) 9XXXX-XXXX.');hasErr=true;}});
     if(hasErr){banner.style.display='block';document.querySelector('.field-error')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
     banner.style.display='none';btn.disabled=true;btn.textContent='Enviando...';
     const conflitos=Array.from(document.querySelectorAll('#c-conflitos input:checked')).map(c=>c.value);
