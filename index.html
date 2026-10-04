@@ -390,6 +390,14 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .et-row-scroll::-webkit-scrollbar{height:6px}
 .et-row-scroll::-webkit-scrollbar-track{background:transparent}
 .et-row-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:10px}
+.et-row-track{position:relative}
+.et-row-scroll{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%)}
+.et-row-nav{position:absolute;top:50%;transform:translateY(-6px);width:38px;height:38px;border-radius:50%;background:rgba(10,16,30,.82);border:1px solid rgba(255,255,255,.14);color:#eef2ff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;opacity:0;transition:opacity .25s,background .2s;backdrop-filter:blur(4px)}
+.et-row:hover .et-row-nav{opacity:1}
+.et-row-nav:hover{background:rgba(10,16,30,.95)}
+.et-row-nav.et-row-nav-prev{left:6px}
+.et-row-nav.et-row-nav-next{right:6px}
+.et-row-nav[disabled]{opacity:0!important;pointer-events:none}
 .et-row-scroll .et-card{flex:0 0 222px;scroll-snap-align:start}
 .et-row-scroll .et-card:hover{transform:translateY(-4px) scale(1.015)}
 
@@ -411,6 +419,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
   .et-rows{gap:24px;padding:4px 0 20px}
   .et-row-title{padding:0 14px;font-size:.88rem;margin-bottom:8px}
   .et-row-scroll{gap:10px;padding:4px 14px 12px}
+  .et-row-nav{display:none}
   .et-row-scroll .et-card{flex-basis:150px;border-radius:14px}
   .et-row-scroll .et-card:hover{transform:none}
 }
@@ -1111,8 +1120,30 @@ function criarLinhaTerapeutas(titulo,lista){
   const scroll=document.createElement('div');
   scroll.className='et-row-scroll';
   lista.forEach(t=>scroll.appendChild(criarCardTerapeuta(t)));
+  const prev=document.createElement('button');
+  prev.type='button';prev.className='et-row-nav et-row-nav-prev';prev.setAttribute('aria-label','Rolar para a esquerda');
+  prev.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+  const next=document.createElement('button');
+  next.type='button';next.className='et-row-nav et-row-nav-next';next.setAttribute('aria-label','Rolar para a direita');
+  next.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+  const passo=()=>Math.round(scroll.clientWidth*0.85);
+  prev.onclick=()=>scroll.scrollBy({left:-passo(),behavior:'smooth'});
+  next.onclick=()=>scroll.scrollBy({left:passo(),behavior:'smooth'});
+  const atualizarNav=()=>{
+    const max=scroll.scrollWidth-scroll.clientWidth;
+    prev.disabled=scroll.scrollLeft<=4;
+    next.disabled=scroll.scrollLeft>=max-4;
+  };
+  scroll.addEventListener('scroll',atualizarNav,{passive:true});
+  const track=document.createElement('div');
+  track.className='et-row-track';
+  track.appendChild(prev);
+  track.appendChild(scroll);
+  track.appendChild(next);
   row.appendChild(h);
-  row.appendChild(scroll);
+  row.appendChild(track);
+  requestAnimationFrame(atualizarNav);
+  window.addEventListener('resize',atualizarNav);
   return row;
 }
 
