@@ -40,12 +40,26 @@ export default async function handler(req, res) {
     }
     if (action === 'insert') {
       const t = sanitizeTable(table);
-      const keys = Object.keys(data);
+      const keys = Object.keys(data).map(sanitizeColumn);
       const vals = Object.values(data);
       const cols = keys.map(k => `"${k}"`).join(', ');
       const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
-      const rows = await sql(`INSERT INTO ${t} (${cols}) VALUES (${placeholders}) RETURNING *`, vals);
-      return res.json({ data: rows[0], error: null });
+      const queryStr = `INSERT INTO ${t} (${cols}) VALUES (${placeholders}) RETURNING *`;
+      try {
+        const rows = await sql(queryStr, vals);
+        return res.json({ data: rows[0], error: null });
+      } catch (e) {
+        // Auto-migração: se alguma coluna nova ainda não existe na tabela (ex: campo
+        // adicionado recentemente no formulário), cria a coluna e tenta de novo.
+        if (e.message && e.message.includes('does not exist')) {
+          for (const k of keys) {
+            await sql(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS "${k}" TEXT`);
+          }
+          const rows = await sql(queryStr, vals);
+          return res.json({ data: rows[0], error: null });
+        }
+        throw e;
+      }
     }
     return res.status(400).json({ error: 'Acao invalida' });
   } catch (e) {
@@ -54,6 +68,11 @@ export default async function handler(req, res) {
 }
 
 const ALLOWED_TABLES = ['fichas_triagem', 'fichas_casal', 'terapeutas'];
+const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+function sanitizeColumn(k) {
+  if (!SAFE_IDENTIFIER.test(k)) throw new Error('Nome de campo invalido: ' + k);
+  return k;
+}
 function sanitizeTable(t) {
   if (!ALLOWED_TABLES.includes(t)) throw new Error('Tabela nao permitida: ' + t);
   return `public."${t}"`;
